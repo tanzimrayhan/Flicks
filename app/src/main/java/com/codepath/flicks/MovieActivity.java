@@ -2,8 +2,11 @@ package com.codepath.flicks;
 
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
+import android.support.v7.widget.LinearLayoutManager;
+import android.support.v7.widget.RecyclerView;
 import android.util.Log;
 
+import com.codepath.flicks.adapters.MoviesAdapter;
 import com.codepath.flicks.models.Movie;
 import com.loopj.android.http.AsyncHttpClient;
 import com.loopj.android.http.JsonHttpResponseHandler;
@@ -12,6 +15,7 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import cz.msebera.android.httpclient.Header;
@@ -25,6 +29,11 @@ public class MovieActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+        RecyclerView rvMovies=findViewById(R.id.rvMovies);
+        movies=new ArrayList<>();
+        final MoviesAdapter adapter=new MoviesAdapter(this,movies);
+        rvMovies.setLayoutManager(new LinearLayoutManager(this,LinearLayoutManager.VERTICAL, false));
+        rvMovies.setAdapter(adapter);
 
 
         AsyncHttpClient client=new AsyncHttpClient();
@@ -35,7 +44,8 @@ public class MovieActivity extends AppCompatActivity {
 
                 try {
                     movieJsonResults=response.getJSONArray("results");
-                    movies=Movie.fromJSONArray(movieJsonResults);
+                    movies.addAll(Movie.fromJSONArray(movieJsonResults));
+                    adapter.notifyDataSetChanged();
                     Log.d("DEBUG",movies.toString());
                 } catch (JSONException e) {
                     e.printStackTrace();
